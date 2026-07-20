@@ -9,3 +9,4 @@ sqlalchemy[asyncio]>=2.0
 asyncpg>=0.29
 pytest>=8.2
 pytest-asyncio>=0.23
+aiosqlite>=0.20

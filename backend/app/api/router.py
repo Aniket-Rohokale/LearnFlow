@@ -1,11 +1,17 @@
 """Protected API router. The auth dependency is applied here, router-wide:
-every route registered under /api requires a valid Supabase JWT. Stage 2
-CRUD routers will be include_router()'d onto this same router."""
+every route registered under /api requires a valid Supabase JWT."""
 from fastapi import APIRouter, Depends
 
+from app.api import activity, courses, dashboard, modules, profile
 from app.auth.dependencies import CurrentUser, get_current_user
 
 api_router = APIRouter(prefix="/api", dependencies=[Depends(get_current_user)])
+
+api_router.include_router(profile.router)
+api_router.include_router(courses.router)
+api_router.include_router(modules.router)
+api_router.include_router(activity.router)
+api_router.include_router(dashboard.router)
 
 
 @api_router.get("/me")
