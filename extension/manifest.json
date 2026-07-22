@@ -3,12 +3,23 @@
   "name": "TrackAI Course Capture",
   "version": "0.1.0",
   "description": "Capture course syllabi to your TrackAI dashboard",
-  "permissions": ["activeTab", "storage", "scripting"],
-  "host_permissions": ["http://localhost:8000/*"],
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA23YlRfeRiWNyLgbPZs2DEd6jwizknLbW1x2YrTmvsF6+u1p2qS0WaWlY3K8/2TYh8/luKRuxz1cIQqfI8S1DgQtzQdc0XTi5MiHUPSNeCKNadCUPPEUE7bHGHVf8+iAKRjlLiXtpxHuv9PCb0CMXs8fqAPAQly0mrwMUHSFNB06RD5btI1VK2E9TFcB7dZPK2k80g8hCf/9uorpDa4gbQTRMa7jVaj7kbj5yAH9sPAa/2YoFuOc3QJqdlIqPMWEZz6Yf3nXBNJ178fcPz5OQcTxueQb5JZhyGIoJRbu1Vhye0WW69KCvv5DhPYf3hiVcuv7VFYSBYAJ45KjgQCjSQQIDAQAB",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://learnflow-backend-o17z.onrender.com"
+  ],
   "content_scripts": [
     {
-      "matches": ["http://localhost:5173/*"],
-      "js": ["content.js"],
+      "matches": [
+        "https://learn-flow-beige.vercel.app/*"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ],

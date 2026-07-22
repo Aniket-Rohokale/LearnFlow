@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000'
+const API_URL = 'https://learnflow-backend-o17z.onrender.com'
 
 function normalizeUrl(raw) {
   const u = new URL(raw)
