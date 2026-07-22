@@ -54,3 +54,36 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .message { margin-top: 10px; font-size: 12px; color: #6b7280; }
 .message.error { color: #ef4444; }
 .message.success { color: #22c55e; }
+
+/* Timer section */
+.divider {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 16px 0 12px;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.timer-display {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #111;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.timer-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-start { background: #22c55e; }
+.btn-start:hover { background: #16a34a; }
+.btn-stop { background: #ef4444; }
+.btn-stop:hover { background: #dc2626; }

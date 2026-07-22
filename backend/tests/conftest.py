@@ -11,6 +11,10 @@ import uuid
 os.environ.setdefault("SUPABASE_URL", "https://test-project.supabase.co")
 os.environ.setdefault("SUPABASE_JWT_SECRET", "test-secret-0123456789abcdef0123456789abcdef")
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
+# Force-disable the LLM in tests: os.environ wins over .env, so a real key on
+# the dev machine can never leak network calls into the suite. Endpoints that
+# want LLM output mock call_llm_with_retry explicitly.
+os.environ["OPENAI_API_KEY"] = ""
 
 import jwt as pyjwt
 import pytest

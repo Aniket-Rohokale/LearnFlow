@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import CurrentUser
 from app.core.db import get_db
 from app.models.models import ActivityLog, Course, CourseProgress
-from app.schemas.core import DailyActivity, DashboardCourse, DashboardOut
+from app.schemas.core import BurnoutInfo, DailyActivity, DashboardCourse, DashboardOut
+from app.services.burnout import assess_burnout
 from app.services.progress import compute_streak
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
@@ -60,6 +61,11 @@ async def read_dashboard(user: CurrentUser, db: AsyncSession = Depends(get_db)):
         if key in by_day:
             by_day[key] += minutes
 
+    # Auto-assess burnout — the heuristic gate makes this cheap: the LLM is
+    # only called when a threshold trips or the stored assessment is stale.
+    burnout_raw = await assess_burnout(db, user.id)
+    burnout = BurnoutInfo(**burnout_raw) if burnout_raw else None
+
     return DashboardOut(
         total_courses=len(courses),
         completed_courses=completed,
@@ -70,4 +76,5 @@ async def read_dashboard(user: CurrentUser, db: AsyncSession = Depends(get_db)):
         weekly_activity=[
             DailyActivity(date=d, minutes=m) for d, m in sorted(by_day.items())
         ],
+        burnout=burnout,
     )

@@ -1,3 +1,183 @@
 @import 'tailwindcss';
 
-/* Dark mode follows the OS for now; a manual toggle lands in Stage 5. */
+/* ============================================================
+   TrackAI — old-school web styling.
+   Fixed page widths per viewport tier (classic "webpage" feel),
+   boxy double borders, hard offset shadows, serif headings,
+   monospace accents. Tailwind utilities still used for spacing.
+   ============================================================ */
+
+:root {
+  --paper: #fdf6e3;
+  --ink: #1a1a1a;
+  --rule: #1a1a1a;
+  --accent: #00008b;      /* classic link blue */
+  --accent-2: #8b0000;    /* dark red */
+  --panel: #ffffff;
+  --shadow: #9a9083;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+/* Old-school: page is a fixed-width sheet centered on a patterned bg,
+   stepping at classic breakpoints instead of fluid resizing. */
+.retro-page {
+  margin: 0 auto;
+  width: 540px;
+  max-width: calc(100vw - 16px);
+}
+@media (min-width: 800px) {
+  .retro-page { width: 720px; }
+}
+@media (min-width: 1040px) {
+  .retro-page { width: 960px; }
+}
+
+/* Panel: white card w/ double border + hard offset shadow */
+.retro-panel {
+  background: var(--panel);
+  border: 3px double var(--rule);
+  box-shadow: 4px 4px 0 var(--shadow);
+}
+
+/* Section heading bar, like a 90s table header */
+.retro-bar {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+}
+
+.retro-h1 {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  font-size: 26px;
+  border-bottom: 3px double var(--rule);
+  padding-bottom: 6px;
+}
+
+/* Beveled push button */
+.retro-btn {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  background: #e8e0cf;
+  border: 2px outset #fffdf5;
+  padding: 5px 14px;
+  cursor: pointer;
+}
+.retro-btn:active { border-style: inset; }
+.retro-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.retro-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: 2px outset #6666ff;
+}
+.retro-btn-danger {
+  background: var(--accent-2);
+  color: #fff;
+  border: 2px outset #ff6666;
+}
+
+/* Inputs: simple inset fields */
+.retro-input {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--ink);
+  background: #fff;
+  border: 2px inset #d6cdb8;
+  padding: 4px 8px;
+  width: 100%;
+}
+.retro-input:focus { outline: 2px solid var(--accent); }
+
+.retro-label {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.retro-link { color: var(--accent); text-decoration: underline; }
+.retro-link:visited { color: #551a8b; }
+
+.retro-mono { font-family: 'Courier New', monospace; }
+
+.retro-hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+}
+
+/* Marquee-era note box */
+.retro-note {
+  background: #fffbcc;
+  border: 2px dashed var(--accent-2);
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  padding: 8px 12px;
+}
+
+/* Ordered steps, typewriter style */
+.retro-steps { counter-reset: step; }
+.retro-steps li {
+  counter-increment: step;
+  font-size: 14px;
+  padding: 4px 0;
+}
+.retro-steps li::before {
+  content: 'STEP ' counter(step) ' >> ';
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  color: var(--accent-2);
+}
+
+/* Table-style list rows */
+.retro-row { border-bottom: 1px solid #d6cdb8; }
+.retro-row:last-child { border-bottom: 0; }
+
+/* Old-school progress: segmented blocks */
+.retro-progress {
+  border: 1px solid var(--ink);
+  background: repeating-linear-gradient(
+    90deg, #eee 0 6px, #fff 6px 8px
+  );
+  height: 14px;
+}
+.retro-progress-fill {
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg, var(--accent) 0 6px, #4444cc 6px 8px
+  );
+}
+.retro-progress-fill.done {
+  background: repeating-linear-gradient(
+    90deg, #006400 0 6px, #228b22 6px 8px
+  );
+}
+
+/* Badge chips */
+.retro-chip {
+  display: inline-block;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
+  padding: 1px 7px;
+  background: #eee;
+}
+.retro-chip.green  { background: #d3f9d8; }
+.retro-chip.amber  { background: #fff3bf; }
+.retro-chip.red    { background: #ffe3e3; }
+.retro-chip.blue   { background: #d0ebff; }

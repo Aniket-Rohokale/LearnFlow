@@ -1,5 +1,13 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
+
+const NAV = [
+  { to: '/', label: 'Overview', end: true },
+  { to: '/activity', label: 'Activity' },
+  { to: '/plan', label: 'Plan' },
+  { to: '/roadmap', label: 'Roadmap' },
+  { to: '/profile', label: 'Profile' },
+]
 
 export default function ProtectedLayout() {
   const { session, loading, signOut, user } = useAuth()
@@ -8,8 +16,8 @@ export default function ProtectedLayout() {
   // otherwise every hard reload bounces through /login.
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="retro-mono text-sm">LOADING…</p>
       </div>
     )
   }
@@ -17,26 +25,51 @@ export default function ProtectedLayout() {
   if (!session) return <Navigate to="/login" replace />
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <header className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <span className="text-sm font-semibold text-gray-900 dark:text-gray-50">
-            TrackAI
-          </span>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500 dark:text-gray-400">{user.email}</span>
-            <button
-              onClick={signOut}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-            >
-              Sign out
-            </button>
+    <div className="min-h-screen py-6">
+      <div className="retro-page">
+        {/* Masthead */}
+        <header className="retro-panel mb-1">
+          <div className="flex items-center justify-between px-4 py-3">
+            <span className="text-2xl font-bold tracking-tight">
+              Track<span style={{ color: '#00008b' }}>AI</span>
+            </span>
+            <div className="flex items-center gap-3">
+              <span className="retro-mono hidden text-xs sm:inline">{user.email}</span>
+              <button onClick={signOut} className="retro-btn">SIGN OUT</button>
+            </div>
           </div>
-        </div>
-      </header>
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <Outlet />
-      </main>
+          <hr className="retro-hr" />
+          {/* Nav strip */}
+          <nav className="flex flex-wrap items-center gap-0 px-2 py-1">
+            {NAV.map(({ to, label, end }, i) => (
+              <span key={to} className="flex items-center">
+                {i > 0 && <span className="retro-mono px-1 text-xs">|</span>}
+                <NavLink
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    `retro-mono px-2 py-1 text-sm ${
+                      isActive ? 'font-bold underline' : 'retro-link'
+                    }`
+                  }
+                >
+                  {label}
+                </NavLink>
+              </span>
+            ))}
+          </nav>
+        </header>
+
+        <main className="mt-4">
+          <Outlet />
+        </main>
+
+        <footer className="mt-8 border-t border-black pt-2 text-center">
+          <p className="retro-mono text-xs">
+            TrackAI — best viewed at any resolution — powered by FastAPI + React
+          </p>
+        </footer>
+      </div>
     </div>
   )
 }

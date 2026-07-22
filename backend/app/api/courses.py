@@ -1,3 +1,4 @@
+from urllib.parse import urlsplit, urlunsplit
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -24,6 +25,18 @@ from app.schemas.core import (
 from app.services.progress import recompute_progress
 
 router = APIRouter(prefix="/courses", tags=["courses"])
+
+
+def normalize_course_url(raw: str) -> str:
+    """Canonical URL for (user_id, url) upsert dedup.
+
+    Strips query, fragment, trailing slash from path, and lowercases
+    scheme + host so that capture from different tab states maps to
+    the same course row.
+    """
+    s = urlsplit(raw)
+    path = s.path.rstrip("/") or "/"
+    return urlunsplit((s.scheme.lower(), s.netloc.lower(), path, "", ""))
 
 
 async def get_owned_course(
@@ -96,7 +109,7 @@ async def create_course(
 ):
     course = Course(
         user_id=user.id,
-        url=str(payload.url),
+        url=normalize_course_url(str(payload.url)),
         title=payload.title,
         platform=payload.platform,
         instructor=payload.instructor,
@@ -122,7 +135,7 @@ async def ingest_course(
     on (user_id, url) — re-capturing a course updates it in place instead of
     duplicating it. Completion state is preserved for modules whose title
     survives the re-capture."""
-    url = str(payload.url)
+    url = normalize_course_url(str(payload.url))
     try:
         parsed = await syllabus_parser.parse_syllabus(payload.page_text, url)
     except SyllabusParseError as exc:

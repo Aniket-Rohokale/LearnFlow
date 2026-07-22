@@ -13,6 +13,7 @@
 
       <p id="page-title" class="page-title"></p>
 
+      <!-- Capture section -->
       <button id="capture-btn" type="button">Capture this course</button>
 
       <div id="result" class="result" hidden>
@@ -20,6 +21,21 @@
         <ul id="result-modules"></ul>
       </div>
 
+      <!-- Timer section -->
+      <hr class="divider" />
+
+      <p class="section-label">Study timer</p>
+
+      <div id="timer-display" class="timer-display" hidden>00:00</div>
+
+      <div class="timer-buttons">
+        <button id="timer-start-btn" type="button" class="btn-start">Start</button>
+        <button id="timer-stop-btn" type="button" class="btn-stop" hidden>Stop</button>
+      </div>
+
+      <p id="timer-message" class="message" role="status"></p>
+
+      <!-- Status message -->
       <p id="message" class="message" role="status"></p>
     </main>
     <script src="popup.js"></script>

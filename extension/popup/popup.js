@@ -1,13 +1,23 @@
 const API_URL = 'http://localhost:8000'
 
+function normalizeUrl(raw) {
+  const u = new URL(raw)
+  u.search = ''
+  u.hash = ''
+  u.pathname = u.pathname.replace(/\/+$/, '') || '/'
+  return u.href
+}
+
 const $ = id => document.getElementById(id)
 
+// ---- Token -----------------------------------------------------------
 async function getToken() {
   return new Promise(resolve => {
     chrome.storage.local.get('token', r => resolve(r.token ?? null))
   })
 }
 
+// ---- Capture ---------------------------------------------------------
 async function getPageText(tabId) {
   const [{ result }] = await chrome.scripting.executeScript({
     target: { tabId },
@@ -39,6 +49,101 @@ function setMessage(text, type = '') {
   el.className = `message ${type}`
 }
 
+// ---- Timer -----------------------------------------------------------
+function fmtElapsed(startMs) {
+  const sec = Math.round((Date.now() - startMs) / 1000)
+  const m = Math.floor(sec / 60)
+  const s = sec % 60
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
+async function timerPostSession(token, minutes) {
+  const res = await fetch(`${API_URL}/api/activity`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ session_minutes: minutes, source: 'extension' }),
+  })
+  if (!res.ok) throw new Error('Failed to log session')
+  return res.json()
+}
+
+let timerInterval = null
+
+function timerStop(token, startMs) {
+  clearInterval(timerInterval)
+  timerInterval = null
+
+  const elapsed = Math.round((Date.now() - startMs) / 60000) // whole minutes
+  if (elapsed < 1) {
+    chrome.storage.local.remove('sessionStart')
+    $('timer-display').hidden = true
+    $('timer-start-btn').hidden = false
+    $('timer-stop-btn').hidden = true
+    $('timer-message').textContent = 'Session too short (< 1 min) — discarded.'
+    $('timer-message').className = 'message'
+    return
+  }
+
+  timerPostSession(token, elapsed)
+    .then(() => {
+      chrome.storage.local.remove('sessionStart')
+      $('timer-display').hidden = true
+      $('timer-start-btn').hidden = false
+      $('timer-stop-btn').hidden = true
+      $('timer-message').textContent = `Logged ${elapsed} min study session ✓`
+      $('timer-message').className = 'message success'
+    })
+    .catch(err => {
+      $('timer-message').textContent = err.message
+      $('timer-message').className = 'message error'
+    })
+}
+
+function timerInit(token) {
+  const startBtn = $('timer-start-btn')
+  const stopBtn = $('timer-stop-btn')
+  const display = $('timer-display')
+  const tmsg = $('timer-message')
+
+  // Check for an active session
+  chrome.storage.local.get('sessionStart', ({ sessionStart }) => {
+    if (sessionStart) {
+      display.hidden = false
+      display.textContent = fmtElapsed(sessionStart)
+      startBtn.hidden = true
+      stopBtn.hidden = false
+      tmsg.textContent = ''
+
+      timerInterval = setInterval(() => {
+        display.textContent = fmtElapsed(sessionStart)
+      }, 1000)
+    }
+  })
+
+  startBtn.addEventListener('click', () => {
+    const now = Date.now()
+    chrome.storage.local.set({ sessionStart: now })
+    display.hidden = false
+    display.textContent = fmtElapsed(now)
+    startBtn.hidden = true
+    stopBtn.hidden = false
+    tmsg.textContent = ''
+
+    timerInterval = setInterval(() => {
+      display.textContent = fmtElapsed(now)
+    }, 1000)
+  })
+
+  stopBtn.addEventListener('click', async () => {
+    const { sessionStart } = await chrome.storage.local.get('sessionStart')
+    if (sessionStart) timerStop(token, sessionStart)
+  })
+}
+
+// ---- Init ------------------------------------------------------------
 async function init() {
   const token = await getToken()
   const dot = $('status-dot')
@@ -46,7 +151,7 @@ async function init() {
   dot.title = token ? 'Signed in' : 'Not signed in — open the TrackAI dashboard first'
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-  $('page-title').textContent = tab.title ?? tab.url
+  if (tab) $('page-title').textContent = tab.title ?? tab.url
 
   const btn = $('capture-btn')
 
@@ -61,7 +166,8 @@ async function init() {
     setMessage('Capturing…')
     try {
       const pageText = await getPageText(tab.id)
-      const data = await ingest(token, tab.url, pageText)
+      const url = normalizeUrl(tab.url)
+      const data = await ingest(token, url, pageText)
       $('result-title').textContent = data.title
       const ul = $('result-modules')
       ul.innerHTML = ''
@@ -82,6 +188,8 @@ async function init() {
       btn.disabled = false
     }
   })
+
+  timerInit(token)
 }
 
 init()

@@ -90,3 +90,44 @@ def test_ingest_rejects_short_page_text(client, auth_headers):
         headers=auth_headers,
     )
     assert res.status_code == 422
+
+
+def test_normalize_query_params(client, auth_headers):
+    """Capture with ?src=x must update, not duplicate."""
+    with patch("app.ai.parser.parse_syllabus", new=AsyncMock(return_value=PARSED)):
+        _ingest(client, auth_headers)
+
+    qs = {**INGEST_BODY, "url": INGEST_BODY["url"] + "?src=extension&ref=test"}
+    with patch("app.ai.parser.parse_syllabus", new=AsyncMock(return_value=PARSED)):
+        res = _ingest(client, auth_headers, qs)
+    assert res.json()["created"] is False
+    courses = client.get("/api/courses", headers=auth_headers).json()
+    assert len(courses) == 1
+
+
+def test_normalize_fragment(client, auth_headers):
+    """Capture with #section-2 must update, not duplicate."""
+    with patch("app.ai.parser.parse_syllabus", new=AsyncMock(return_value=PARSED)):
+        _ingest(client, auth_headers)
+
+    frag = {**INGEST_BODY, "url": INGEST_BODY["url"] + "#section-2"}
+    with patch("app.ai.parser.parse_syllabus", new=AsyncMock(return_value=PARSED)):
+        res = _ingest(client, auth_headers, frag)
+    assert res.json()["created"] is False
+    courses = client.get("/api/courses", headers=auth_headers).json()
+    assert len(courses) == 1
+
+
+def test_normalize_trailing_slash(client, auth_headers):
+    """Trailing slash must map to same canonical URL."""
+    with patch("app.ai.parser.parse_syllabus", new=AsyncMock(return_value=PARSED)):
+        _ingest(client, auth_headers)
+
+    trailing = {**INGEST_BODY}  # base URL already has trailing slash
+    trailing["url"] = INGEST_BODY["url"].rstrip("/")  # remove it
+    with patch("app.ai.parser.parse_syllabus", new=AsyncMock(return_value=PARSED)):
+        res = _ingest(client, auth_headers, trailing)
+    assert res.json()["created"] is False
+    courses = client.get("/api/courses", headers=auth_headers).json()
+    assert len(courses) == 1
+

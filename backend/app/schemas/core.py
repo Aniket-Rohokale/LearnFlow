@@ -120,6 +120,13 @@ class ActivityOut(BaseModel):
 
 
 # --- dashboard --------------------------------------------------------------
+class BurnoutInfo(BaseModel):
+    """Latest burnout assessment surfaced on the overview page."""
+    risk: str  # low | medium | high
+    signals: list[str]
+    suggestions: list[str]
+
+
 class DashboardCourse(BaseModel):
     id: UUID
     title: str
@@ -140,3 +147,4 @@ class DashboardOut(BaseModel):
     streak_days: int
     courses: list[DashboardCourse]
     weekly_activity: list[DailyActivity]  # exactly 7 entries, oldest first
+    burnout: BurnoutInfo | None = None  # auto-assessed on load when stale (gated)
