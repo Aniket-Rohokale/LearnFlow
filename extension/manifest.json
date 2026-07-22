@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "TrackAI Course Capture",
+  "version": "0.1.0",
+  "description": "Capture course syllabi to your TrackAI dashboard",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["http://localhost:8000/*"],
+  "content_scripts": [
+    {
+      "matches": ["http://localhost:5173/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Capture course to TrackAI"
+  }
+}

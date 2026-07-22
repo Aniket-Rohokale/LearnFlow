@@ -80,6 +80,17 @@ class CourseListItem(BaseModel):
     completed_module_count: int
 
 
+# --- ingest (Stage 3: extension capture -> Claude parse -> upsert) ----------
+class IngestRequest(BaseModel):
+    url: HttpUrl
+    page_text: str = Field(min_length=50, max_length=500_000)
+
+
+class CourseIngestOut(CourseOut):
+    """Course payload plus whether this capture created or updated it."""
+    created: bool
+
+
 # --- modules ----------------------------------------------------------------
 class ModuleCreate(BaseModel):
     title: str = Field(min_length=1, max_length=300)

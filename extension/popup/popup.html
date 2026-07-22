@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="logo">TrackAI</span>
+        <span id="status-dot" class="dot" title="Sign-in status"></span>
+      </header>
+
+      <p id="page-title" class="page-title"></p>
+
+      <button id="capture-btn" type="button">Capture this course</button>
+
+      <div id="result" class="result" hidden>
+        <p id="result-title"></p>
+        <ul id="result-modules"></ul>
+      </div>
+
+      <p id="message" class="message" role="status"></p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

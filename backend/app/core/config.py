@@ -9,8 +9,11 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_jwt_secret: str | None = None
     database_url: str
-    anthropic_api_key: str | None = None  # required from Stage 3 on
     cors_origins: str = "http://localhost:5173"
+    # LLM provider (Stage 3+) — arbitrary OpenAI-compatible router
+    openai_api_key: str | None = None
+    openai_base_url: str = "https://api.openai.com/v1"
+    openai_model: str = "gpt-4o-mini"
 
     @property
     def cors_origin_list(self) -> list[str]:
