@@ -181,3 +181,50 @@ body {
 .retro-chip.amber  { background: #fff3bf; }
 .retro-chip.red    { background: #ffe3e3; }
 .retro-chip.blue   { background: #d0ebff; }
+
+/* Textarea — matches retro-input */
+.retro-textarea {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: var(--ink);
+  background: #fff;
+  border: 2px inset #d6cdb8;
+  padding: 6px 8px;
+  width: 100%;
+  resize: vertical;
+  min-height: 120px;
+}
+.retro-textarea:focus { outline: 2px solid var(--accent); }
+
+/* Prompt box — dark bg, monospace, for copyable text */
+.retro-prompt-box {
+  background: #2a2a2a;
+  color: #d4d4d4;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  border: 2px dashed #555;
+  padding: 14px 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  position: relative;
+}
+
+/* Copy button */
+.retro-copy-btn {
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: #e8e0cf;
+  border: 2px outset #fffdf5;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.retro-copy-btn:active { border-style: inset; }
+.retro-copy-btn.copied {
+  background: #d3f9d8;
+  color: #006400;
+}

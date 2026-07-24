@@ -12,6 +12,7 @@ import {
 } from 'recharts'
 import { api } from '@/services/api'
 import CourseForm from '@/components/CourseForm'
+import GeminiImportForm from '@/components/GeminiImportForm'
 import EmptyState from '@/components/EmptyState'
 import ProgressBar from '@/components/ProgressBar'
 import { SkeletonCard } from '@/components/Skeleton'
@@ -119,6 +120,12 @@ export default function HomePage() {
             popup shows &ldquo;Course added!&rdquo; or &ldquo;Course updated!&rdquo;.
           </div>
         </div>
+      </div>
+
+      {/* Import from Ask Gemini */}
+      <div className="retro-panel">
+        <div className="retro-bar">Import from Ask Gemini</div>
+        <GeminiImportForm />
       </div>
 
       {/* Manual log */}
