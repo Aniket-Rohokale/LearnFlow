@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from 'react-router-dom'
 import { api } from '@/services/api'
 import EmptyState from '@/components/EmptyState'
 import { SkeletonCard } from '@/components/Skeleton'
@@ -124,15 +125,33 @@ export default function PlanPage() {
                   weekday: 'short', month: 'short', day: 'numeric',
                 })}
               </div>
-              <ul className="space-y-1 p-3">
-                {day.blocks.map((block, j) => (
-                  <li key={j} className="text-sm">
-                    <span className="font-bold">{block.module_title}</span>
-                    <span className="retro-mono ml-2 text-xs">{block.minutes} min</span>
-                  </li>
-                ))}
+              <ul className="space-y-2 p-3">
+                {day.blocks.map((block, j) => {
+                  const targetUrl = block.course_id
+                    ? `/courses/${block.course_id}?topic=${encodeURIComponent(block.module_title)}`
+                    : null
+
+                  return (
+                    <li key={j} className="text-sm border-b border-[#e8e0cf] pb-2 pt-1 last:border-b-0">
+                      {targetUrl ? (
+                        <Link
+                          to={targetUrl}
+                          className="retro-link font-bold hover:underline block leading-snug"
+                          title={`Click to view module in course`}
+                        >
+                          {block.module_title}
+                        </Link>
+                      ) : (
+                        <span className="font-bold block leading-snug">{block.module_title}</span>
+                      )}
+                      <span className="retro-mono mt-1 block text-xs" style={{ color: '#666' }}>
+                        {block.minutes} min
+                      </span>
+                    </li>
+                  )
+                })}
               </ul>
-              <p className="retro-mono border-t border-black px-3 py-1 text-xs">
+              <p className="retro-mono border-t border-black px-3 py-1 text-xs font-bold">
                 {day.total_minutes} min total
               </p>
             </div>
@@ -143,3 +162,4 @@ export default function PlanPage() {
     </div>
   )
 }
+

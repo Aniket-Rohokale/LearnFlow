@@ -1,5 +1,6 @@
+import { useEffect, useMemo, useRef } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '@/services/api'
 import GeminiUpdateForm from '@/components/GeminiUpdateForm'
 import ProgressBar from '@/components/ProgressBar'
@@ -7,13 +8,39 @@ import { SkeletonCard } from '@/components/Skeleton'
 
 export default function CourseDetailPage() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const targetTopic = searchParams.get('topic')
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const highlightedRef = useRef(null)
 
   const { data: course, isPending, error } = useQuery({
     queryKey: ['course', id],
     queryFn: () => api(`/api/courses/${id}`),
   })
+
+  // Find matching module ID for target topic from search params
+  const matchedModuleId = useMemo(() => {
+    if (!targetTopic || !course?.modules) return null
+    const normTarget = targetTopic.trim().toLowerCase()
+
+    // 1. Try exact title match
+    const exact = course.modules.find(m => m.title.trim().toLowerCase() === normTarget)
+    if (exact) return exact.id
+
+    // 2. Try partial match
+    const partial = course.modules.find(
+      m => m.title.trim().toLowerCase().includes(normTarget) || normTarget.includes(m.title.trim().toLowerCase())
+    )
+    return partial ? partial.id : null
+  }, [targetTopic, course?.modules])
+
+  // Scroll matching module into view when loaded
+  useEffect(() => {
+    if (matchedModuleId && highlightedRef.current) {
+      highlightedRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [matchedModuleId, isPending])
 
   const toggleModule = useMutation({
     mutationFn: ({ moduleId, completed }) =>
@@ -107,34 +134,55 @@ export default function CourseDetailPage() {
       </div>
 
       <div className="retro-panel">
-        <div className="retro-bar">Modules</div>
+        <div className="retro-bar flex items-center justify-between">
+          <span>Modules</span>
+          {targetTopic && (
+            <span className="retro-mono text-[10px] normal-case tracking-normal opacity-90">
+              Filter: {targetTopic}
+            </span>
+          )}
+        </div>
         <ul>
-          {course.modules.map(module => (
-            <li key={module.id} className="retro-row flex items-center gap-3 px-4 py-2">
-              <input
-                id={`module-${module.id}`}
-                type="checkbox"
-                checked={module.completed}
-                onChange={e =>
-                  toggleModule.mutate({ moduleId: module.id, completed: e.target.checked })
-                }
-                className="h-4 w-4"
-              />
-              <label
-                htmlFor={`module-${module.id}`}
-                className={`flex-1 cursor-pointer text-sm ${
-                  module.completed ? 'line-through opacity-50' : ''
+          {course.modules.map(module => {
+            const isMatch = module.id === matchedModuleId
+            return (
+              <li
+                key={module.id}
+                ref={isMatch ? highlightedRef : null}
+                className={`retro-row flex items-center gap-3 px-4 py-2.5 transition-all ${
+                  isMatch ? 'bg-[#fffbcc] border-l-4 border-l-[#8b0000] font-semibold' : ''
                 }`}
               >
-                {module.title}
-              </label>
-              {module.estimated_minutes != null && (
-                <span className="retro-mono shrink-0 text-xs">
-                  {module.estimated_minutes} min
-                </span>
-              )}
-            </li>
-          ))}
+                <input
+                  id={`module-${module.id}`}
+                  type="checkbox"
+                  checked={module.completed}
+                  onChange={e =>
+                    toggleModule.mutate({ moduleId: module.id, completed: e.target.checked })
+                  }
+                  className="h-4 w-4"
+                />
+                <label
+                  htmlFor={`module-${module.id}`}
+                  className={`flex-1 cursor-pointer text-sm ${
+                    module.completed ? 'line-through opacity-50' : ''
+                  }`}
+                >
+                  {module.title}
+                </label>
+                {isMatch && (
+                  <span className="retro-chip red shrink-0">
+                    TARGET TOPIC
+                  </span>
+                )}
+                {module.estimated_minutes != null && (
+                  <span className="retro-mono shrink-0 text-xs">
+                    {module.estimated_minutes} min
+                  </span>
+                )}
+              </li>
+            )
+          })}
         </ul>
       </div>
 
@@ -143,3 +191,4 @@ export default function CourseDetailPage() {
     </div>
   )
 }
+
