@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { api } from '@/services/api'
+import GeminiUpdateForm from '@/components/GeminiUpdateForm'
 import ProgressBar from '@/components/ProgressBar'
 import { SkeletonCard } from '@/components/Skeleton'
 
@@ -136,6 +137,9 @@ export default function CourseDetailPage() {
           ))}
         </ul>
       </div>
+
+      {/* Update via Ask Gemini */}
+      <GeminiUpdateForm courseId={id} courseUrl={course.url} />
     </div>
   )
 }
